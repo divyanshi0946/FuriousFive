@@ -9,7 +9,7 @@ const Footer = () => (
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Zap className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            FocusLoop
+            Ekagra
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Turn flexible study time into real rewards. Privacy-first, student-friendly.
@@ -44,7 +44,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="border-t border-border/30 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-        <span>© 2026 FocusLoop. Built for students, by students.</span>
+        <span>© 2026 Ekagra. Built for students, by students.</span>
         <span>🏆 Hackathon Product • Privacy-First EdTech</span>
       </div>
     </div>
