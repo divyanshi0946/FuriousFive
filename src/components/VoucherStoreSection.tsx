@@ -67,12 +67,10 @@ const VoucherCard = ({ reward, fp, brands, index, currentFP }: { reward: string;
 
 const VoucherStoreSection = () => {
   const [currentFP, setCurrentFP] = useState(325);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);
       const fetchFP = async () => {
         try {
           const res = await authFetch(`${BASE_URL}/rewards/status`);
@@ -101,7 +99,7 @@ const VoucherStoreSection = () => {
   ];
 
   return (
-    <SectionWrapper className="relative">
+    <SectionWrapper className="relative" id="rewards">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-warning/5 rounded-full blur-[120px]" />
       </div>
@@ -133,25 +131,5 @@ const VoucherStoreSection = () => {
     </SectionWrapper>
   );
 };
-          <span><span className="text-accent">+5</span> Weekly Pending</span>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="font-display font-semibold text-foreground mb-5 text-center">Tier 2 Rewards</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
-          {tier2.map((v, i) => <VoucherCard key={v.reward} {...v} index={i} />)}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="font-display font-semibold text-foreground mb-5 text-center">Tier 3 Rewards</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
-          {tier3.map((v, i) => <VoucherCard key={v.reward} {...v} index={i} />)}
-        </div>
-      </div>
-    </div>
-  </SectionWrapper>
-);
 
 export default VoucherStoreSection;

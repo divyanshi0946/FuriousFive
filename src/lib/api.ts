@@ -4,7 +4,7 @@ export function getToken() {
   return localStorage.getItem("token");
 }
 
-export async function authFetch(url: string, options: any = {}) {
+export async function authFetch(url: string, options: RequestInit = {}) {
   const token = getToken();
 
   return fetch(url, {

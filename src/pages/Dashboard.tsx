@@ -6,6 +6,12 @@ import CircularProgress from "@/components/CircularProgress";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { BASE_URL, authFetch } from "@/lib/api";
 
+interface SessionLog {
+  time: string;
+  mode: string;
+  hours: string;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({
@@ -13,7 +19,7 @@ const Dashboard = () => {
     currentStreak: 0,
     todayStudyTime: "0h",
     dailyGoal: "6h",
-    sessions: [],
+    sessions: [] as SessionLog[],
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -114,7 +120,7 @@ const Dashboard = () => {
             </div>
             <div className="space-y-3">
               <p className="text-sm font-semibold text-foreground mb-4">Session Logs</p>
-              {data.sessions.map((s: any, i: number) => (
+              {data.sessions.map((s, i) => (
                 <div key={i} className="flex items-center justify-between glass rounded-xl px-4 py-3">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-foreground">{s.time}</span>
