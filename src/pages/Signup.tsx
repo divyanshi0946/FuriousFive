@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Zap, ArrowLeft, Eye, EyeOff } from "lucide-react";
@@ -7,6 +7,7 @@ import { BASE_URL } from "../lib/api";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   // States
   const [name, setName] = useState("");
@@ -41,7 +42,7 @@ const Signup = () => {
           localStorage.setItem("token", data.token);
         }
 
-        window.location.href = "/";
+        navigate("/dashboard");
       } else {
         alert(data.message || "Signup failed ❌");
       }

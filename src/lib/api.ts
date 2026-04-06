@@ -16,3 +16,15 @@ export async function authFetch(url: string, options: any = {}) {
     },
   });
 }
+
+// Helper for public data integration
+export async function publicFetch(endpoint: string) {
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}`);
+    if (!res.ok) throw new Error(`Fetch failed: ${res.statusText}`);
+    return await res.json();
+  } catch (err) {
+    console.error(`Public fetch error (${endpoint}):`, err);
+    return null;
+  }
+}

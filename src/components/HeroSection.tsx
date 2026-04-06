@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock, Flame, Gift, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AnimatedCounter from "./AnimatedCounter";
 import CircularProgress from "./CircularProgress";
+import { publicFetch } from "@/lib/api";
 
 const floatingCards = [
   { icon: Clock, label: "Today", value: "5.5h / 6h", color: "from-primary to-accent" },
@@ -11,75 +13,96 @@ const floatingCards = [
   { icon: Gift, label: "FP Balance", value: "325 FP", color: "from-success to-primary" },
 ];
 
-const HeroSection = () => (
-  <section id="home" className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-    {/* BG effects */}
-    <div className="absolute inset-0 pointer-events-none">
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[hsl(var(--glow-cyan))]/5 rounded-full blur-[140px]" />
-    </div>
+const HeroSection = () => {
+  const [stats, setStats] = useState({
+    userCount: 10000,
+    totalFocusPoints: 325,
+    activeRooms: 15
+  });
 
-    <div className="container max-w-7xl mx-auto px-4 relative z-10">
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        {/* Left */}
-        <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="space-y-8">
-          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground">
-            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            Trusted by 10,000+ students
-          </div>
+  useEffect(() => {
+    const loadStats = async () => {
+      const data = await publicFetch("/stats"); // Example Base44 endpoint
+      if (data) {
+        setStats({
+          userCount: data.userCount || 10000,
+          totalFocusPoints: data.totalPoints || 325,
+          activeRooms: data.activeRooms || 15
+        });
+      }
+    };
+    loadStats();
+  }, []);
 
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-balance">
-            Turn Flexible Study Time Into{" "}
-            <span className="gradient-text">Real Rewards</span>
-          </h1>
+  return (
+    <section id="home" className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+      {/* BG effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[hsl(var(--glow-cyan))]/5 rounded-full blur-[140px]" />
+      </div>
 
-          <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-            A privacy-first study accountability platform that lets students complete 6+ verified hours anytime within the day, build streaks, earn Focus Points, and redeem real-world vouchers.
-          </p>
-
-          <div className="flex flex-wrap gap-4">
-            <Link to="/signup">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold px-8 glow-primary hover:opacity-90 transition-opacity group">
-                Start Your Focus Journey
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <a href="#how-it-works">
-              <Button size="lg" variant="outline" className="border-border/50 text-foreground hover:bg-secondary/50">
-                See How It Works
-              </Button>
-            </a>
-          </div>
-
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-success" /> Privacy-First</div>
-            <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> Flexible Hours</div>
-            <div className="flex items-center gap-2"><Gift className="w-4 h-4 text-accent" /> Real Vouchers</div>
-          </div>
-        </motion.div>
-
-        {/* Right - Dashboard mockup */}
-        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
-          {/* Main dashboard card */}
-          <div className="glass rounded-2xl p-6 space-y-6 glow-primary">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display font-semibold text-foreground">Today's Progress</h3>
-              <span className="text-xs glass rounded-full px-3 py-1 text-success font-medium">● Live</span>
+      <div className="container max-w-7xl mx-auto px-4 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left */}
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="space-y-8">
+            <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              Trusted by {stats.userCount.toLocaleString()}+ students
             </div>
 
-            <div className="flex items-center justify-around">
-              <CircularProgress progress={92} label="5.5h / 6h" sublabel="Daily Goal" />
-              <div className="space-y-3 text-center">
-                <div className="text-3xl font-display font-bold text-foreground">
-                  <AnimatedCounter target={325} suffix=" FP" />
-                </div>
-                <p className="text-xs text-muted-foreground">Focus Points Balance</p>
-                <div className="glass rounded-lg px-3 py-1.5 text-xs">
-                  <span className="text-success">+25 FP</span> earned today
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-balance">
+              Turn Flexible Study Time Into{" "}
+              <span className="gradient-text">Real Rewards</span>
+            </h1>
+
+            <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
+              A privacy-first study accountability platform that lets students complete 6+ verified hours anytime within the day, build streaks, earn Focus Points, and redeem real-world vouchers.
+            </p>
+
+            <div className="flex flex-wrap gap-4">
+              <Link to="/signup">
+                <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold px-8 glow-primary hover:opacity-90 transition-opacity group">
+                  Start Your Focus Journey
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <a href="#how-it-works">
+                <Button size="lg" variant="outline" className="border-border/50 text-foreground hover:bg-secondary/50">
+                  See How It Works
+                </Button>
+              </a>
+            </div>
+
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-success" /> Privacy-First</div>
+              <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> Flexible Hours</div>
+              <div className="flex items-center gap-2"><Gift className="w-4 h-4 text-accent" /> Real Vouchers</div>
+            </div>
+          </motion.div>
+
+          {/* Right - Dashboard mockup */}
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
+            {/* Main dashboard card */}
+            <div className="glass rounded-2xl p-6 space-y-6 glow-primary">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display font-semibold text-foreground">Today's Progress</h3>
+                <span className="text-xs glass rounded-full px-3 py-1 text-success font-medium">● Live</span>
+              </div>
+
+              <div className="flex items-center justify-around">
+                <CircularProgress progress={92} label="5.5h / 6h" sublabel="Daily Goal" />
+                <div className="space-y-3 text-center">
+                  <div className="text-3xl font-display font-bold text-foreground">
+                    <AnimatedCounter target={stats.totalFocusPoints} suffix=" FP" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Focus Points Balance</p>
+                  <div className="glass rounded-lg px-3 py-1.5 text-xs">
+                    <span className="text-success">+25 FP</span> earned today
+                  </div>
                 </div>
               </div>
-            </div>
 
             {/* Multi-session bar */}
             <div className="space-y-2">

@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const links = [
@@ -10,12 +10,23 @@ const links = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Rewards", href: "#rewards" },
   { label: "Privacy", href: "#privacy" },
-  { label: "Dashboard", href: "#dashboard" },
   { label: "FAQ", href: "#faq" },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
 
   return (
     <motion.nav
@@ -24,12 +35,12 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 glass-strong"
     >
       <div className="container max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
-        <a href="#home" className="flex items-center gap-2 font-display font-bold text-xl">
+        <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
           Ekagra
-        </a>
+        </Link>
 
         <div className="hidden lg:flex items-center gap-1">
           {links.map((l) => (
@@ -41,17 +52,33 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
+          {isLoggedIn && (
+            <Link
+              to="/dashboard"
+              className="px-3 py-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors rounded-md hover:bg-primary/10"
+            >
+              Dashboard
+            </Link>
+          )}
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log In</Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold glow-primary">
-              Start Focusing
+          {!isLoggedIn ? (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold glow-primary">
+                  Start Focusing
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground gap-2">
+              <LogOut className="w-4 h-4" /> Log Out
             </Button>
-          </Link>
+          )}
         </div>
 
         <button className="lg:hidden text-foreground" onClick={() => setOpen(!open)}>
@@ -73,13 +100,26 @@ const Navbar = () => {
                   {l.label}
                 </a>
               ))}
+              {isLoggedIn && (
+                <Link to="/dashboard" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-primary font-medium hover:text-primary/80 rounded-md hover:bg-primary/10">
+                  Dashboard
+                </Link>
+              )}
               <div className="pt-2 flex flex-col gap-2">
-                <Link to="/login" onClick={() => setOpen(false)}>
-                  <Button variant="ghost" className="w-full text-muted-foreground">Log In</Button>
-                </Link>
-                <Link to="/signup" onClick={() => setOpen(false)}>
-                  <Button className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold">Start Focusing</Button>
-                </Link>
+                {!isLoggedIn ? (
+                  <>
+                    <Link to="/login" onClick={() => setOpen(false)}>
+                      <Button variant="ghost" className="w-full text-muted-foreground">Log In</Button>
+                    </Link>
+                    <Link to="/signup" onClick={() => setOpen(false)}>
+                      <Button className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold">Start Focusing</Button>
+                    </Link>
+                  </>
+                ) : (
+                  <Button variant="ghost" onClick={handleLogout} className="w-full text-muted-foreground gap-2">
+                    <LogOut className="w-4 h-4" /> Log Out
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>

@@ -1,24 +1,11 @@
 import { Lock, Unlock, ShoppingBag } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import SectionWrapper from "./SectionWrapper";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { authFetch, BASE_URL } from "@/lib/api";
 
-const currentFP = 325;
-
-const tier2 = [
-  { reward: "₹50 Voucher", fp: 400, brands: ["Blinkit", "Zepto"] },
-  { reward: "₹75 Voucher", fp: 550, brands: ["Swiggy", "Zomato"] },
-  { reward: "₹100 Voucher", fp: 700, brands: ["Instamart", "BigBasket"] },
-];
-
-const tier3 = [
-  { reward: "₹150 Voucher", fp: 1000, brands: ["Swiggy", "Blinkit"] },
-  { reward: "₹200 Voucher", fp: 1300, brands: ["Zomato", "Zepto"] },
-  { reward: "₹300 Voucher", fp: 1800, brands: ["BigBasket", "Instamart"] },
-];
-
-const VoucherCard = ({ reward, fp, brands, index }: { reward: string; fp: number; brands: string[]; index: number }) => {
+const VoucherCard = ({ reward, fp, brands, index, currentFP }: { reward: string; fp: number; brands: string[]; index: number; currentFP: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const unlocked = currentFP >= fp;
@@ -78,26 +65,74 @@ const VoucherCard = ({ reward, fp, brands, index }: { reward: string; fp: number
   );
 };
 
-const VoucherStoreSection = () => (
-  <SectionWrapper className="relative">
-    <div className="absolute inset-0 pointer-events-none">
-      <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-warning/5 rounded-full blur-[120px]" />
-    </div>
-    <div className="relative z-10">
-      <div className="text-center max-w-2xl mx-auto mb-6">
-        <span className="text-xs font-semibold uppercase tracking-widest text-warning mb-4 block">Reward Vault</span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Your Next Voucher Is <span className="gradient-text">Getting Closer</span>
-        </h2>
-      </div>
+const VoucherStoreSection = () => {
+  const [currentFP, setCurrentFP] = useState(325);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-      {/* FP Balance card */}
-      <div className="max-w-sm mx-auto glass rounded-2xl p-6 text-center mb-12 gradient-border">
-        <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-primary" />
-        <p className="text-xs text-muted-foreground mb-1">Current Balance</p>
-        <p className="text-4xl font-display font-bold gradient-text">{currentFP} FP</p>
-        <div className="flex justify-center gap-4 mt-3 text-xs text-muted-foreground">
-          <span><span className="text-success">+25</span> Today</span>
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+      const fetchFP = async () => {
+        try {
+          const res = await authFetch(`${BASE_URL}/rewards/status`);
+          if (res.ok) {
+            const data = await res.json();
+            setCurrentFP(data.focusPoints || 325);
+          }
+        } catch (err) {
+          console.error("Failed to fetch FP:", err);
+        }
+      };
+      fetchFP();
+    }
+  }, []);
+
+  const tier2 = [
+    { reward: "₹50 Voucher", fp: 400, brands: ["Blinkit", "Zepto"] },
+    { reward: "₹75 Voucher", fp: 550, brands: ["Swiggy", "Zomato"] },
+    { reward: "₹100 Voucher", fp: 700, brands: ["Instamart", "BigBasket"] },
+  ];
+
+  const tier3 = [
+    { reward: "₹150 Voucher", fp: 1000, brands: ["Swiggy", "Blinkit"] },
+    { reward: "₹200 Voucher", fp: 1300, brands: ["Zomato", "Zepto"] },
+    { reward: "₹300 Voucher", fp: 1800, brands: ["BigBasket", "Instamart"] },
+  ];
+
+  return (
+    <SectionWrapper className="relative">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-warning/5 rounded-full blur-[120px]" />
+      </div>
+      <div className="relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <span className="text-xs font-semibold uppercase tracking-widest text-warning mb-4 block">Reward Vault</span>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Your Next Voucher Is <span className="gradient-text">Getting Closer</span>
+          </h2>
+        </div>
+
+        {/* FP Balance card */}
+        <div className="max-w-sm mx-auto glass rounded-2xl p-6 text-center mb-12 gradient-border">
+          <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-primary" />
+          <p className="text-xs text-muted-foreground mb-1">Current Balance</p>
+          <p className="text-4xl font-display font-bold gradient-text">{currentFP} FP</p>
+          <div className="flex justify-center gap-4 mt-3 text-xs text-muted-foreground">
+            <span><span className="text-success">+25</span> Today</span>
+            <span><span className="text-accent">12</span> Streak</span>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...tier2, ...tier3].map((v, i) => (
+            <VoucherCard key={v.reward} {...v} index={i} currentFP={currentFP} />
+          ))}
+        </div>
+      </div>
+    </SectionWrapper>
+  );
+};
           <span><span className="text-accent">+5</span> Weekly Pending</span>
         </div>
       </div>

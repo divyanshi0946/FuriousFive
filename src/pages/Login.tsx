@@ -1,11 +1,48 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Zap, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { BASE_URL } from "../lib/api";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await fetch(`${BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && (data.token || data.success)) {
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        alert("Login successful! 🚀");
+        navigate("/dashboard");
+      } else {
+        alert(data.message || "Login failed ❌");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Please check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
@@ -29,22 +66,40 @@ const Login = () => {
           <h1 className="font-display text-2xl font-bold text-foreground mb-1">Welcome back</h1>
           <p className="text-sm text-muted-foreground mb-8">Log in to continue your focus journey.</p>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleLogin}>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
-              <Input type="email" placeholder="you@example.com" className="bg-secondary/50 border-border/50" />
+              <Input 
+                type="email" 
+                placeholder="you@example.com" 
+                className="bg-secondary/50 border-border/50" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Password</label>
               <div className="relative">
-                <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="bg-secondary/50 border-border/50 pr-10" />
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  className="bg-secondary/50 border-border/50 pr-10" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold glow-primary hover:opacity-90">
-              Log In
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold glow-primary hover:opacity-90"
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in..." : "Log In"}
             </Button>
           </form>
 
